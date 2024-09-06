@@ -1,0 +1,12 @@
+cargo-features = ["edition2024"]
+
+[workspace]
+
+[package]
+name = "rustlinux"
+version = "0.1.0"
+edition = "2024"
+include = ["/src"]
+
+[build-dependencies]
+bindgen = "0.69.4"
