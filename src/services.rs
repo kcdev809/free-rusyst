@@ -1,5 +1,11 @@
 use std::borrow::Borrow;
 use std::cell::Cell;
+use std::fs::{self, File, Permissions};
+use std::os::linux::process;
+use std::os::unix::fs::{MetadataExt, PermissionsExt};
+use std::os::unix::process;
+use std::path::Path;
+use std::process;
 use std::sync::Arc;
 
 // ++++++++++++
@@ -160,6 +166,8 @@ impl Service {
 /// (`0`) *Success*
 /// (`1`) *Invalid flags*
 /// (`2`) *Already started*
+/// (`3`) *Invalid executable*
+/// (`4`) *Exec failed*
 //
 fn start_svc(service: &Service) -> u8 {
 	//
@@ -181,18 +189,47 @@ fn start_svc(service: &Service) -> u8 {
 			return 2
 		}
 	}
-	//
+
 	// Info
 	//
-	let desc           = &*service.description.unwrap_or(String::from(""))   ;
-	let stype   = &service.svctype                                          ;
-	let before         = &*service.before.unwrap_or(String::from(""))        ;
-	let after          = &*service.after.unwrap_or(String::from(""))         ;
-	let start          = &*service.action_start                                    ;
-	let stop           = &*service.action_stop.unwrap_or(String::from(""))   ;
-	let restart        = &*service.action_restart.unwrap_or(String::from(""));
+	let desc                  = &*service.description.unwrap_or(String::from(""))   ;
+	let stype          = &service.svctype                                          ;
+	let before                = &*service.before.unwrap_or(String::from(""))        ;
+	let after                 = &*service.after.unwrap_or(String::from(""))         ;
+	let start                 = &*service.action_start                                    ;
+	let stop                  = &*service.action_stop.unwrap_or(String::from(""))   ;
+	let restart               = &*service.action_restart.unwrap_or(String::from(""));
 	//
 
+	let start_path = Path::new(start);
+	//
+	if !start_path.is_file() {
+		return 3
+	};
+
+	let result_start_path_meta = start_path.metadata();
+	//
+	match result_start_path_meta {
+		//
+		Ok(_)  => ()      ,
+		Err(_) => return 3,
+		//
+	}
+
+	let mut proc_cmd = std::process::Command::new(start_path);
+	//
+	proc_cmd.env_clear();
+	//
+	let result_process = proc_cmd.spawn();
+	//
+	match result_process {
+		Ok(_)  => ()      ,
+		Err(_) => return 4,
+	}
+	//
+	let process = result_process.unwrap();
+
+	// TODO
 
 }
 
