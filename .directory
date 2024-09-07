@@ -1,9 +1,0 @@
-[Dolphin]
-SortHiddenLast=true
-Timestamp=2024,8,21,15,51,10.926
-Version=4
-ViewMode=1
-VisibleRoles=Details_text,Details_size,Details_modificationtime,Details_creationtime,Details_type,CustomizedDetails
-
-[Settings]
-HiddenFilesShown=true
